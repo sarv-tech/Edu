@@ -76,6 +76,11 @@
                             <label for="login_roll_number">Roll Number / ID</label>
                             <input type="text" id="login_roll_number" name="roll_number" required placeholder="e.g. 101">
                         </div>
+                        <div class="form-group">
+                            <label for="login_password">Password</label>
+                            <input type="password" id="login_password" name="password" required placeholder="Enter Password">
+                            <button type="button" class="toggle-password btn-primary" data-target="login_password">Show</button>
+                        </div>
 
                         <!-- Verification API Feedback Area -->
                         <div id="student-verification-box" style="margin-bottom: 20px; padding: 12px; border-radius: 8px; font-size: 0.9rem; display: none;"></div>
@@ -103,6 +108,11 @@
                         <div class="form-group">
                             <label for="reg_roll_number">Desired Roll Number</label>
                             <input type="text" id="reg_roll_number" name="roll_number" required placeholder="e.g. 101">
+                        </div>
+                        <div class="form-group">
+                            <label for="student_reg_password">Password</label>
+                            <input type="password" id="student_reg_password" name="password" required minlength="4" placeholder="Enter Password">
+                            <button type="button" class="toggle-password btn-primary" data-target="student_reg_password">Show</button>
                         </div>
                         <div class="form-group">
                             <label for="reg_branch">Branch/Department</label>

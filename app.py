@@ -28,11 +28,20 @@ def init_db():
             name TEXT NOT NULL,
             roll_number TEXT NOT NULL,
             branch TEXT NOT NULL,
+            password_hash TEXT,
             admin_id INTEGER NOT NULL,
             FOREIGN KEY (admin_id) REFERENCES admins (id),
             UNIQUE (roll_number, admin_id)
         )
     ''')
+    
+    # Safe SQLite migration for existing students table
+    try:
+        conn.execute('SELECT password_hash FROM students LIMIT 1')
+    except sqlite3.OperationalError:
+        # Column does not exist, add it. Existing users will have NULL password_hash.
+        conn.execute("ALTER TABLE students ADD COLUMN password_hash TEXT")
+        conn.commit()
     conn.execute('''
         CREATE TABLE IF NOT EXISTS marks (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -116,17 +125,24 @@ def student_register():
     name = request.form['name'].strip()
     roll_number = request.form['roll_number'].strip()
     branch = request.form['branch'].strip()
+    password = request.form['password']
     admin_id = request.form.get('admin_id')
     
-    if not name or not roll_number or not branch or not admin_id:
+    if not name or not roll_number or not branch or not admin_id or not password:
         flash('All fields are required for registration.', 'error')
         return redirect(url_for('auth'))
+        
+    if len(password) < 4:
+        flash('Password must be at least 4 characters long.', 'error')
+        return redirect(url_for('auth'))
+        
+    password_hash = generate_password_hash(password)
         
     conn = get_db()
     try:
         conn.execute(
-            'INSERT INTO students (name, roll_number, branch, admin_id) VALUES (?, ?, ?, ?)',
-            (name, roll_number, branch, admin_id)
+            'INSERT INTO students (name, roll_number, branch, password_hash, admin_id) VALUES (?, ?, ?, ?, ?)',
+            (name, roll_number, branch, password_hash, admin_id)
         )
         conn.commit()
         flash('Student registration successful! You can now log in.', 'success')
@@ -140,10 +156,11 @@ def student_register():
 @app.route('/student_login', methods=['POST'])
 def student_login():
     roll_number = request.form['roll_number'].strip()
+    password = request.form['password']
     admin_id = request.form.get('admin_id')
     
-    if not roll_number or not admin_id:
-        flash('Please select a college and enter your roll number.', 'error')
+    if not roll_number or not admin_id or not password:
+        flash('Please select a college, enter your roll number and password.', 'error')
         return redirect(url_for('auth'))
         
     conn = get_db()
@@ -153,13 +170,13 @@ def student_login():
     ).fetchone()
     conn.close()
     
-    if student:
+    if student and student['password_hash'] and check_password_hash(student['password_hash'], password):
         session['student_roll'] = roll_number
         session['student_admin_id'] = student['admin_id'] 
         session['student_name'] = student['name']
         return redirect(url_for('student'))
         
-    flash('Student profile not found under the selected college.', 'error')
+    flash('Invalid credentials.', 'error')
     return redirect(url_for('auth'))
 
 @app.route('/api/get_student_details')
@@ -214,15 +231,21 @@ def admin():
             name = request.form['name'].strip()
             roll_number = request.form['roll_number'].strip()
             branch = request.form['branch'].strip()
-            try:
-                conn.execute(
-                    'INSERT INTO students (name, roll_number, branch, admin_id) VALUES (?, ?, ?, ?)', 
-                    (name, roll_number, branch, admin_id)
-                )
-                conn.commit()
-                flash('Student added successfully!', 'success')
-            except sqlite3.IntegrityError:
-                flash('This Roll Number already exists in your records!', 'error')
+            password = request.form['password']
+            
+            if len(password) < 4:
+                flash('Password must be at least 4 characters long.', 'error')
+            else:
+                password_hash = generate_password_hash(password)
+                try:
+                    conn.execute(
+                        'INSERT INTO students (name, roll_number, branch, password_hash, admin_id) VALUES (?, ?, ?, ?, ?)', 
+                        (name, roll_number, branch, password_hash, admin_id)
+                    )
+                    conn.commit()
+                    flash('Student added successfully!', 'success')
+                except sqlite3.IntegrityError:
+                    flash('This Roll Number already exists in your records!', 'error')
                 
         # Action 2: Add marks ONLY (Does not touch student table!)
         elif action == 'add_marks':

@@ -1,0 +1,49 @@
+name: Python CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest
+
+    - name: Validate Python syntax
+      run: |
+        python -m compileall .
+
+    - name: Validate Flask application import
+      run: |
+        python -c "from app import app"
+
+    - name: Run automated tests
+      run: |
+        set +e
+        pytest
+        STATUS=$?
+        set -e
+
+        if [ "$STATUS" -eq 5 ]; then
+          echo "No tests collected."
+          exit 0
+        fi
+
+        exit "$STATUS"

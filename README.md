@@ -9,7 +9,7 @@ A beginner-friendly, fully functional web application for managing student resul
 
 ## Features
 - **Admin Panel**: Add students, enter subject-wise marks, delete records, view summary tables.
-- **Student Panel**: Login via Roll Number, view subject-wise marks, total, percentage, and grade.
+- **Student Panel**: Login securely via Roll Number and Password, view subject-wise marks, total, percentage, and grade.
 - **Dynamic Calculation**: Automatically calculates percentage and grades.
 
 ## Setup Instructions
@@ -32,6 +32,9 @@ A beginner-friendly, fully functional web application for managing student resul
    - Username: `admin`
    - Password: `admin`
 
+5. **Existing Students (Migration)**
+   - The system now features secure password-based authentication for students.
+   - For databases created before this update, existing student accounts have been safely migrated but do not have a password configured. These legacy accounts cannot authenticate until an administrator assigns them a password.
 
    ## 📁 Project Structure
    Edu/
