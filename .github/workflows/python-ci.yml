@@ -26,24 +26,24 @@ jobs:
         pip install -r requirements.txt
         pip install pytest
 
-    - name: Validate Python syntax
-      run: |
-        python -m compileall .
+      - name: Validate Python syntax
+        run: |
+          python -m compileall .
 
-    - name: Validate Flask application import
-      run: |
-        python -c "from app import app"
+      - name: Validate Flask application import
+        run: |
+          python -c "from app import app"
 
-    - name: Run automated tests
-      run: |
-        set +e
-        pytest
-        STATUS=$?
-        set -e
+      - name: Run automated tests
+        run: |
+          set +e
+          pytest
+          STATUS=$?
+          set -e
 
-        if [ "$STATUS" -eq 5 ]; then
-          echo "No tests collected."
-          exit 0
-        fi
+          if [ "$STATUS" -eq 5 ]; then
+            echo "No tests collected."
+            exit 0
+          fi
 
-        exit "$STATUS"
+          exit "$STATUS"
