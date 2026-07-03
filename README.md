@@ -36,14 +36,16 @@ A beginner-friendly, fully functional web application for managing student resul
    - The system now features secure password-based authentication for students.
    - For databases created before this update, existing student accounts have been safely migrated but do not have a password configured. These legacy accounts cannot authenticate until an administrator assigns them a password.
 
-   ## 📁 Project Structure
-   Edu/
+## 📁 Project Structure
+```text
+Edu/
 ├── static/          # CSS, JS, images
 ├── templates/       # HTML templates
 ├── app.py           # Main Flask application
 ├── database.db      # SQLite database
 ├── requirements.txt # Dependencies
 └── README.md
+```
 ## 🤝 Contributing
 1. Fork the repository
 2. Create new branch: `git checkout -b feature/your-feature`

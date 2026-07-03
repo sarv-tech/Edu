@@ -82,7 +82,7 @@ def auth():
 @app.route('/admin_register', methods=['POST'])
 def admin_register():
     username = request.form['username'].strip().lower()
-    password = request.form['password']
+    password = request.form.get('password', '')
     
     if len(username) < 3 or len(password) < 4:
         flash('Username and Password must be longer.', 'error')
@@ -105,7 +105,7 @@ def admin_register():
 @app.route('/admin_login', methods=['POST'])
 def admin_login():
     username = request.form['username'].strip().lower()
-    password = request.form['password']
+    password = request.form.get('password', '')
     
     conn = get_db()
     admin = conn.execute('SELECT * FROM admins WHERE username = ?', (username,)).fetchone()
@@ -125,7 +125,7 @@ def student_register():
     name = request.form['name'].strip()
     roll_number = request.form['roll_number'].strip()
     branch = request.form['branch'].strip()
-    password = request.form['password']
+    password = request.form.get('password', '')
     admin_id = request.form.get('admin_id')
     
     if not name or not roll_number or not branch or not admin_id or not password:
@@ -156,7 +156,7 @@ def student_register():
 @app.route('/student_login', methods=['POST'])
 def student_login():
     roll_number = request.form['roll_number'].strip()
-    password = request.form['password']
+    password = request.form.get('password', '')
     admin_id = request.form.get('admin_id')
     
     if not roll_number or not admin_id or not password:
@@ -231,7 +231,7 @@ def admin():
             name = request.form['name'].strip()
             roll_number = request.form['roll_number'].strip()
             branch = request.form['branch'].strip()
-            password = request.form['password']
+            password = request.form.get('password', '')
             
             if len(password) < 4:
                 flash('Password must be at least 4 characters long.', 'error')
